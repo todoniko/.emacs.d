@@ -1,10 +1,46 @@
 #+TITLE: Emacs Configuration
 
-* Custom Settings
-Keep the setup clean by setting up separate file for custom
-settings.
-
+* Base Editor
+** Usex eXperience
+[[http://ergoemacs.org/emacs/emacs_buffer_management.html][ibuffer]]
 #+BEGIN_SRC emacs-lisp
-(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-(load custom-file)
+(blink-cursor-mode -1)
+(when (window-system) (set-frame-font "Source Code Pro-10"))
+
+(defalias 'yes-or-no-p 'y-or-n-p)
+(defalias 'list-buffers 'ibuffer)
+
+;; Auto refresh buffers
+(global-auto-revert-mode 1)
+(add-hook 'dired-mode-hook 'auto-revert-mode)
+
+(setq global-auto-revert-non-file-buffers t ;; Also auto refresh dired
+      auto-revert-verbose nil               ;; but be quiet about it
+      visible-bell t                        ;; silence is key
+      line-move-visual nil
+      create-lockfiles nil)
+
+(delete-selection-mode t)
+(show-paren-mode t)
+;;(load-theme 'gruvbox-dark-soft t)
+(load-theme 'zenburn t)
+ #+END_SRC
+
+** Backup
+ #+BEGIN_SRC emacs-lisp
+ (setq backup-directory-alist `(("." . "~/.emacs.d/backup"))
+       backup-by-copying t
+       delete-old-versions t
+       kept-new-versions 6
+       kept-old-versions 2
+       version-control t)
+
+ #+END_SRC
+* Personal Information
+#+BEGIN_SRC emacs-lisp
+(setq user-full-name "todoniko" 
+      user-mail-address "todoniko@gmail.com"
+      custom-file (expand-file-name "custom.el" user-emacs-directory))
+
+(load custom-file) ;; custom setting in separate file
 #+END_SRC
