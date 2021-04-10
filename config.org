@@ -1,0 +1,10 @@
+#+TITLE: Emacs Configuration
+
+* Custom Settings
+Keep the setup clean by setting up separate file for custom
+settings.
+
+#+BEGIN_SRC emacs-lisp
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(load custom-file)
+#+END_SRC
