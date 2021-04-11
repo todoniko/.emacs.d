@@ -134,6 +134,91 @@
   (setq magit-display-buffer-function 'magit-display-buffer-same-window-except-diff-v1)
   (setq magit-diff-refine-hunk t))
 #+END_SRC
+* Programming
+#+BEGIN_SRC emacs-lisp
+(use-package flymake
+  :ensure t
+  :bind
+  ("<f7>"  . flymake-goto-prev-error)
+  ("<f8>"  . flymake-goto-next-error)
+  :config
+  (defun flymake--transform-mode-line-format (ret)
+    "Change the output of `flymake--mode-line-format'."
+    (setf (seq-elt (car ret) 1) " FM")
+    ret)
+  (advice-add #'flymake--mode-line-format
+              :filter-return #'flymake--transform-mode-line-format))
+#+END_SRC
+** Ocaml
+#+BEGIN_SRC emacs-lisp
+(setq opam-p (executable-find "opam"))
+
+(if opam-p
+    (let ((opam-share (ignore-errors (car (process-lines "opam" "config" "var" "share")))))
+      (when (and opam-share (file-directory-p opam-share))
+        (add-to-list 'load-path (expand-file-name "emacs/site-lisp" opam-share)))))
+
+(use-package ocp-indent :if opam-p)
+(use-package ocp-index  :if opam-p)
+
+(use-package tuareg
+  :delight "T"
+  :bind (:map tuareg-mode-map
+	      ("<left>" . backward-word)
+	      ("<right>" . forward-word))
+  :mode (("\\.ml[ily]?$" . tuareg-mode)
+	 ("\\.ocamlinit$" . tuareg-mode)
+	 ("^dune$" . dune-mode)
+	 ("^dune-project$" . dune-mode)
+	 ("^dune-workspace$" . dune-mode))
+  :config (load "tuareg-site-file"))
+#+END_SRC
+*** merlin
+#+BEGIN_SRC emacs-lisp
+(use-package merlin
+  :custom
+  (merlin-completion-with-doc t)
+  (merlin-error-check-then-move nil)
+  (merlin-command 'opam)
+  (merlin-error-after-save t)
+  (merlin-locate-preference 'mli)
+  :custom-face
+  (merlin-type-face ((t (:inherit (highlight)))))
+  :hook
+  (tuareg-mode . merlin-mode)
+  :config 
+  (setq company-backends (remove 'merlin-company-backend company-backends)))
+
+(use-package merlin-eldoc 
+  :ensure t
+  :custom
+  (eldoc-echo-area-use-multiline-p t) ; use multiple lines when necessary
+  (merlin-eldoc-max-lines 8)          ; but not more than 8
+  :hook (tuareg-mode . merlin-eldoc-setup))
+#+END_SRC
+*** utop
+#+BEGIN_SRC emacs-lisp
+(use-package utop
+  :init
+  (defun my/setup-utop ()
+    (setq utop-command "opam config exec -- utop -emacs")
+    (utop-minor-mode))
+  :custom
+  (utop-edit-command t)
+  :commands (utop-minor-mode)
+  :hook (tuareg-mode . my/setup-utop))
+#+END_SRC
+*** dune
+#+BEGIN_SRC emacs-lisp
+(use-package dune-flymake)
+(use-package dune)
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+(use-package ocamlformat
+  :commands (ocamlformat ocamlformat-before-save)
+  :bind (:map tuareg-mode-map
+              ("M-<iso-lefttab>" . ocamlformat)))
+#+END_SRC
 * Personal Information
 #+BEGIN_SRC emacs-lisp
 (setq user-full-name "todoniko" 
