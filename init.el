@@ -17,24 +17,31 @@
 
 ;; Package configs
 (require 'package)
-(add-to-list 'package-archives
-             '("melpa" . "http://melpa.org/packages/") t)
-(add-to-list 'package-archives 
-             '("org" . "http://orgmode.org/elpa/") t)
-(when (boundp 'package-pinned-packages)
-  (setq package-pinned-packages
-        '((org-plus-contrib . "org"))))
+(setq package-archives
+      '(("GNU ELPA"     . "https://elpa.gnu.org/packages/")
+        ("MELPA Stable" . "https://stable.melpa.org/packages/")
+        ("MELPA"        . "https://melpa.org/packages/")
+	("org"          . "https://orgmode.org/elpa/"))
+      package-archive-priorities
+      '(("MELPA Stable" . 10)
+        ("GNU ELPA"     . 5)
+        ("MELPA"        . 1)
+	("org"          . 0)))
+
 (package-initialize)
 
-;; Initial install if that fresh
-(unless (or (package-installed-p 'use-package)
-            (package-installed-p 'diminish))
+(unless (package-installed-p 'use-package)
   (package-refresh-contents)
-  (package-install 'use-package)
-  (package-install 'diminish))
+  (package-install 'use-package))
 
-(eval-when-compile (require 'use-package))
-(require 'diminish)
-(require 'bind-key)
+(eval-and-compile
+  (setq use-package-always-ensure t
+	use-package-expand-minimally t
+	use-package-compute-statistics t
+	use-package-enable-imenu-support t))
+
+(eval-when-compile
+  (require 'use-package)
+  (require 'bind-key))
 
 (org-babel-load-file (concat user-emacs-directory "config.org"))
