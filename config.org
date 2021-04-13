@@ -4,9 +4,13 @@
 ** Usex eXperience
 [[http://ergoemacs.org/emacs/emacs_buffer_management.html][ibuffer]]
 #+BEGIN_SRC emacs-lisp
-(split-window-horizontally)
-(blink-cursor-mode -1)
-(when (window-system) (set-frame-font "Source Code Pro-10"))
+(use-package gruvbox-theme
+  :ensure t
+  :config (load-theme 'gruvbox-light-medium t))
+
+(when (window-system)
+  (split-window-right)
+  (set-frame-font "Source Code Pro-10"))
 
 (defalias 'yes-or-no-p 'y-or-n-p)
 (defalias 'list-buffers 'ibuffer)
@@ -23,8 +27,6 @@
 
 (delete-selection-mode t)
 (show-paren-mode t)
-;;(load-theme 'gruvbox-dark-soft t)
-;;(load-theme 'zenburn t)
  #+END_SRC
  
 ** Backup
