@@ -41,9 +41,16 @@
 * Input
 ** Suggestion/Completion
 #+BEGIN_SRC emacs-lisp
-(use-package auto-complete
+(use-package company
   :ensure t
-  :bind (:map ac-mode-map ("C-SPC" . auto-complete)))
+  :delight " C"
+  :custom
+  (company-idle-delay nil)
+  (company-tooltip-align-annotations t)
+  :hook (prog-mode . company-mode)
+  :config (company-quickhelp-mode 1)
+  :bind
+  ("C-SPC" . company-complete))
 #+END_SRC
 
 ** Template
@@ -121,7 +128,7 @@
   (setq magit-diff-refine-hunk t))
 #+END_SRC
 * Programming
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (use-package flymake
   :ensure t
   :bind
@@ -169,12 +176,11 @@
     (merlin-command 'opam)
     (merlin-error-after-save t)
     (merlin-locate-preference 'mli)
+    (merlin-debug nil)
     :custom-face
     (merlin-type-face ((t (:inherit (highlight)))))
     :hook
     (tuareg-mode . merlin-mode))
-
-  (use-package merlin-ac :after merlin)
 
   (use-package merlin-eldoc 
     :ensure t
