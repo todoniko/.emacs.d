@@ -170,19 +170,8 @@
 #+END_SRC
 * Programming
 ** Syntax
-#+BEGIN_SRC emacs-lisp :tangle no
-(use-package flymake
-  :ensure t
-  :bind
-  ("<f7>"  . flymake-goto-prev-error)
-  ("<f8>"  . flymake-goto-next-error)
-  :config
-  (defun flymake--transform-mode-line-format (ret)
-    "Change the output of `flymake--mode-line-format'."
-    (setf (seq-elt (car ret) 1) " FM")
-    ret)
-  (advice-add #'flymake--mode-line-format
-              :filter-return #'flymake--transform-mode-line-format))
+#+BEGIN_SRC emacs-lisp
+(use-package flymake :ensure t)
 #+END_SRC
 ** Documentation
 #+BEGIN_SRC emacs-lisp
@@ -209,16 +198,17 @@
 (use-package ocp-index  :load-path opam-share)
 
 (use-package tuareg
-  :delight " T"
+  :delight " "
   :bind (:map tuareg-mode-map
 	      ("<left>" . backward-word)
 	      ("<right>" . forward-word))
-  :mode (("\\.ml[ily]?$" . tuareg-mode)
+  :mode (("\\.ml[ip]?$" . tuareg-mode)
 	 ("\\.ocamlinit$" . tuareg-mode)
 	 ("^dune$" . dune-mode)
 	 ("^dune-project$" . dune-mode)
 	 ("^dune-workspace$" . dune-mode))
-  :config (load "tuareg-site-file"))
+  :config
+  (setq compile-command "dune build @check"))
 #+END_SRC
 *** merlin
 #+BEGIN_SRC emacs-lisp
