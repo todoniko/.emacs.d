@@ -72,9 +72,6 @@
 (use-package ivy
   :ensure t
   :delight
-  :bind
-  (:map ivy-mode-map
-   ("C-'" . ivy-avy))
   :config
   (ivy-mode 1)
   ;; add ‘recentf-mode’ and bookmarks to ‘ivy-switch-buffer’.
@@ -92,6 +89,7 @@
 
 (use-package avy 
   :ensure t
+  :bind (("C-'" . avy-goto-char-timer))
   :custom
   (avy-keys '(?e ?s ?a ?t ?o ?u ?n ?i ?c))
   (avy-style 'pre))
@@ -260,9 +258,9 @@
   :hook (tuareg-mode . my/setup-utop))
 #+END_SRC
 *** dune
-#+BEGIN_SRC emacs-lisp :tangle no
-(use-package dune-flymake :ensure t)
-(use-package dune)
+#+BEGIN_SRC emacs-lisp
+(use-package dune-flymake :load-path opam-share)
+(use-package dune :load-path opam-share)
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
 (use-package ocamlformat
