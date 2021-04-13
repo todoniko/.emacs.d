@@ -24,7 +24,7 @@
 (delete-selection-mode t)
 (show-paren-mode t)
 ;;(load-theme 'gruvbox-dark-soft t)
-(load-theme 'zenburn t)
+;;(load-theme 'zenburn t)
  #+END_SRC
  
 ** Backup
@@ -48,7 +48,6 @@
   (company-idle-delay nil)
   (company-tooltip-align-annotations t)
   :hook (prog-mode . company-mode)
-  :config (company-quickhelp-mode 1)
   :bind
   ("C-SPC" . company-complete))
 #+END_SRC
@@ -57,6 +56,7 @@
 #+BEGIN_SRC emacs-lisp
 (use-package yasnippet
   :ensure t
+  :defer 7
   :custom
   (yas-snippet-dirs '("~/.emacs.d/snippets"))
   (yas-triggers-in-field t)
@@ -114,6 +114,45 @@
   (which-key-mode))
 #+END_SRC
 
+* Org Mode
+#+BEGIN_SRC emacs-lisp
+(use-package org
+  :ensure org-plus-contrib
+  :defer t
+  :commands 
+  (org-mode
+   org-capture
+   org-store-link
+   org-iswitchb)
+  :custom
+  (org-startup-indented t)
+  (org-startup-folded t)
+  (org-ellipsis " \u25bc")
+  (org-agenda-files '("~/project/org/agenda.org"))
+  (org-capture-templates
+   '(
+     ("b" "Bookmark" entry
+      (file+headline "~/project/org/notes.org" "Bookmarks")
+      "* [[%x][%?]] %^g\n\n" :empty-lines 1)
+     ("d" "Dnevnik" entry
+      (file+datetree "~/project/org/dnevnik.org")
+      "* metaphor %?" :empty-lines 1)))
+  :config
+  (setq org-confirm-babel-evaluate nil
+	    org-src-fontify-natively t
+	    org-src-window-setup 'current-window
+	    org-src-strip-leading-and-trailing-blank-lines t
+	    org-src-preserve-indentation t
+	    org-src-tab-acts-natively t)
+  (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((sql . t)
+       (shell . t)
+       (dot . t)
+       (emacs-lisp . t)
+       (js . t)
+       (ocaml . t))))
+#+END_SRC
 * Source Control
 #+BEGIN_SRC emacs-lisp
 (use-package magit
@@ -147,15 +186,19 @@
 (setq opam-p (executable-find "opam"))
 
 (if opam-p
-    (let ((opam-share (ignore-errors (car (process-lines "opam" "config" "var" "share")))))
-      (when (and opam-share (file-directory-p opam-share))
-        (add-to-list 'load-path (expand-file-name "emacs/site-lisp" opam-share)))))
+    (dolist (var (car (read-from-string (shell-command-to-string "opam config env --sexp"))))
+      (setenv (car var) (cadr var))))
 
-(use-package ocp-indent :if opam-p)
-(use-package ocp-index  :if opam-p)
+(setq opam-share
+      (ignore-errors (car (process-lines "opam" "config" "var" "share"))))
+
+(when (and opam-share (file-directory-p opam-share))
+  (add-to-list 'load-path (expand-file-name "emacs/site-lisp" opam-share)))
+
+(use-package ocp-indent :load-path opam-share)
+(use-package ocp-index  :load-path opam-share)
 
 (use-package tuareg
-  :delight "T"
   :bind (:map tuareg-mode-map
 	      ("<left>" . backward-word)
 	      ("<right>" . forward-word))
@@ -168,30 +211,31 @@
 #+END_SRC
 *** merlin
 #+BEGIN_SRC emacs-lisp
-  (use-package merlin
-    :custom
-    (merlin-completion-with-doc t)
-    (merlin-use-auto-complete-mode t)
-    (merlin-error-check-then-move nil)
-    (merlin-command 'opam)
-    (merlin-error-after-save t)
-    (merlin-locate-preference 'mli)
-    (merlin-debug nil)
-    :custom-face
-    (merlin-type-face ((t (:inherit (highlight)))))
-    :hook
-    (tuareg-mode . merlin-mode))
+(use-package merlin
+  :custom
+  (merlin-completion-with-doc t)
+  (merlin-use-auto-complete-mode t)
+  (merlin-error-check-then-move nil)
+  (merlin-command 'opam)
+  (merlin-error-after-save t)
+  (merlin-locate-preference 'mli)
+  (merlin-debug nil)
+  :custom-face
+  (merlin-type-face ((t (:inherit (highlight)))))
+  :hook
+  (tuareg-mode . merlin-mode))
 
-  (use-package merlin-eldoc 
-    :ensure t
-    :custom
-    (eldoc-echo-area-use-multiline-p t) ; use multiple lines when necessary
-    (merlin-eldoc-max-lines 8)          ; but not more than 8
-    :hook (tuareg-mode . merlin-eldoc-setup))
+(use-package merlin-eldoc 
+  :ensure t
+  :custom
+  (eldoc-echo-area-use-multiline-p t) ; use multiple lines when necessary
+  (merlin-eldoc-max-lines 8)          ; but not more than 8
+  :hook (tuareg-mode . merlin-eldoc-setup))
 #+END_SRC
 *** utop
 #+BEGIN_SRC emacs-lisp
 (use-package utop
+  :load-path opam-share
   :init
   (defun my/setup-utop ()
     (setq utop-command "opam config exec -- utop -emacs")
@@ -202,8 +246,8 @@
   :hook (tuareg-mode . my/setup-utop))
 #+END_SRC
 *** dune
-#+BEGIN_SRC emacs-lisp
-(use-package dune-flymake)
+#+BEGIN_SRC emacs-lisp :tangle no
+(use-package dune-flymake :ensure t)
 (use-package dune)
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
@@ -212,7 +256,6 @@
   :bind (:map tuareg-mode-map
               ("M-<iso-lefttab>" . ocamlformat)))
 #+END_SRC
-
 * Personal Information
 #+BEGIN_SRC emacs-lisp
 (setq user-full-name "todoniko" 
