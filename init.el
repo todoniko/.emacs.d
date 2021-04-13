@@ -34,6 +34,7 @@
 
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
+  (package-install 'delight)
   (package-install 'use-package))
 
 (eval-and-compile
@@ -44,6 +45,7 @@
 
 (eval-when-compile
   (require 'use-package)
+  (require 'delight)
   (require 'bind-key))
 
 (org-babel-load-file (concat user-emacs-directory "config.org"))

@@ -10,13 +10,14 @@
 
 (when (window-system)
   (split-window-right)
+  (next-buffer)
   (set-frame-font "Source Code Pro-10"))
 
 (defalias 'yes-or-no-p 'y-or-n-p)
 (defalias 'list-buffers 'ibuffer)
 
 ;; Auto refresh buffers
-(global-auto-revert-mode 1)
+(global-auto-revert-mode t)
 (add-hook 'dired-mode-hook 'auto-revert-mode)
 
 (setq global-auto-revert-non-file-buffers t ;; Also auto refresh dired
@@ -45,7 +46,7 @@
 #+BEGIN_SRC emacs-lisp
 (use-package company
   :ensure t
-  :delight " C"
+  :delight
   :custom
   (company-idle-delay nil)
   (company-tooltip-align-annotations t)
@@ -55,10 +56,11 @@
 #+END_SRC
 
 ** Template
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
 (use-package yasnippet
   :ensure t
   :defer 7
+  :delight
   :custom
   (yas-snippet-dirs '("~/.emacs.d/snippets"))
   (yas-triggers-in-field t)
@@ -69,7 +71,7 @@
 #+BEGIN_SRC emacs-lisp
 (use-package ivy
   :ensure t
-;;  :diminish (ivy-mode . "")
+  :delight
   :bind
   (:map ivy-mode-map
    ("C-'" . ivy-avy))
@@ -110,7 +112,7 @@
 #+BEGIN_SRC emacs-lisp
 (use-package which-key
   :ensure t
-  :diminish which-key-mode
+  :delight
   :custom (which-key-idle-delay 0.03)
   :config
   (which-key-mode))
@@ -169,6 +171,7 @@
   (setq magit-diff-refine-hunk t))
 #+END_SRC
 * Programming
+** Syntax
 #+BEGIN_SRC emacs-lisp :tangle no
 (use-package flymake
   :ensure t
@@ -182,6 +185,13 @@
     ret)
   (advice-add #'flymake--mode-line-format
               :filter-return #'flymake--transform-mode-line-format))
+#+END_SRC
+** Documentation
+#+BEGIN_SRC emacs-lisp
+(use-package eldoc
+  :ensure t
+  :defer t
+  :delight eldoc-mode)
 #+END_SRC
 ** Ocaml
 #+BEGIN_SRC emacs-lisp
@@ -201,6 +211,7 @@
 (use-package ocp-index  :load-path opam-share)
 
 (use-package tuareg
+  :delight " T"
   :bind (:map tuareg-mode-map
 	      ("<left>" . backward-word)
 	      ("<right>" . forward-word))
@@ -238,6 +249,7 @@
 #+BEGIN_SRC emacs-lisp
 (use-package utop
   :load-path opam-share
+  :delight
   :init
   (defun my/setup-utop ()
     (setq utop-command "opam config exec -- utop -emacs")
