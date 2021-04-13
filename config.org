@@ -4,6 +4,7 @@
 ** Usex eXperience
 [[http://ergoemacs.org/emacs/emacs_buffer_management.html][ibuffer]]
 #+BEGIN_SRC emacs-lisp
+(split-window-horizontally)
 (blink-cursor-mode -1)
 (when (window-system) (set-frame-font "Source Code Pro-10"))
 
@@ -25,7 +26,7 @@
 ;;(load-theme 'gruvbox-dark-soft t)
 (load-theme 'zenburn t)
  #+END_SRC
-
+ 
 ** Backup
  #+BEGIN_SRC emacs-lisp
  (setq backup-directory-alist `(("." . "~/.emacs.d/backup"))
@@ -39,31 +40,16 @@
 
 * Input
 ** Suggestion/Completion
- #+BEGIN_SRC emacs-lisp
- (use-package company
-   :ensure t
-   :custom
-   (company-quickhelp-delay 0)
-   (company-idle-delay nil)
-   (company-tooltip-align-annotations t)
-   :hook
-   (prog-mode . company-mode)
-   :config
-   (company-quickhelp-mode 1)
-   :bind
-   ("M-o" . company-complete))
+#+BEGIN_SRC emacs-lisp
+(use-package auto-complete
+  :ensure t
+  :bind (:map ac-mode-map ("C-SPC" . auto-complete)))
+#+END_SRC
 
- (use-package company-quickhelp
-   :ensure t
-   :commands (company-quickhelp-mode)
-   :bind (:map company-active-map
-               ("M-h" . company-quickhelp-manual-begin)))
- #+END_SRC
 ** Template
 #+BEGIN_SRC emacs-lisp
 (use-package yasnippet
   :ensure t
-;;  :diminish yas-minor-mode
   :custom
   (yas-snippet-dirs '("~/.emacs.d/snippets"))
   (yas-triggers-in-field t)
@@ -175,26 +161,27 @@
 #+END_SRC
 *** merlin
 #+BEGIN_SRC emacs-lisp
-(use-package merlin
-  :custom
-  (merlin-completion-with-doc t)
-  (merlin-error-check-then-move nil)
-  (merlin-command 'opam)
-  (merlin-error-after-save t)
-  (merlin-locate-preference 'mli)
-  :custom-face
-  (merlin-type-face ((t (:inherit (highlight)))))
-  :hook
-  (tuareg-mode . merlin-mode)
-  :config 
-  (setq company-backends (remove 'merlin-company-backend company-backends)))
+  (use-package merlin
+    :custom
+    (merlin-completion-with-doc t)
+    (merlin-use-auto-complete-mode t)
+    (merlin-error-check-then-move nil)
+    (merlin-command 'opam)
+    (merlin-error-after-save t)
+    (merlin-locate-preference 'mli)
+    :custom-face
+    (merlin-type-face ((t (:inherit (highlight)))))
+    :hook
+    (tuareg-mode . merlin-mode))
 
-(use-package merlin-eldoc 
-  :ensure t
-  :custom
-  (eldoc-echo-area-use-multiline-p t) ; use multiple lines when necessary
-  (merlin-eldoc-max-lines 8)          ; but not more than 8
-  :hook (tuareg-mode . merlin-eldoc-setup))
+  (use-package merlin-ac :after merlin)
+
+  (use-package merlin-eldoc 
+    :ensure t
+    :custom
+    (eldoc-echo-area-use-multiline-p t) ; use multiple lines when necessary
+    (merlin-eldoc-max-lines 8)          ; but not more than 8
+    :hook (tuareg-mode . merlin-eldoc-setup))
 #+END_SRC
 *** utop
 #+BEGIN_SRC emacs-lisp
@@ -219,6 +206,7 @@
   :bind (:map tuareg-mode-map
               ("M-<iso-lefttab>" . ocamlformat)))
 #+END_SRC
+
 * Personal Information
 #+BEGIN_SRC emacs-lisp
 (setq user-full-name "todoniko" 
